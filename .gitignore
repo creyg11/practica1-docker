@@ -1,0 +1,14 @@
+# Variables de entorno y credenciales
+.env
+.env.*
+!.env.example
+
+# Entornos virtuales y dependencias comunes
+venv/
+__pycache__/
+node_modules/
+*.log
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jugadores de la selección española</title>
+</head>
+<body>
+    <main>
+        <h1>Jugadores de la selección española</h1>
+        <p><a href="{{ url_for('home') }}">Volver al inicio</a></p>
+
+        {% if error %}
+            <p role="alert">{{ error }}</p>
+        {% elif jugadores %}
+            <table>
+                <caption>Listado de jugadores guardados en la base de datos</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Nombre</th>
+                        <th scope="col">Posición</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for jugador in jugadores %}
+                        <tr>
+                            <td>{{ jugador.nombre }}</td>
+                            <td>{{ jugador.posicion }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Todavía no hay jugadores guardados.</p>
+        {% endif %}
+    </main>
+</body>
+</html>

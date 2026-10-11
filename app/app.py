@@ -2,7 +2,7 @@ import os
 
 import psycopg
 from psycopg.rows import dict_row
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, redirect, render_template, url_for
 
 app = Flask(__name__)
 
@@ -20,11 +20,23 @@ def get_db_connection():
 
 @app.route("/")
 def home():
-    return (
-        "<h1>Servicio Web Activo</h1>"
-        "<p>Práctica 1 - Despliegue Multi-Entorno</p>"
-        '<p><a href="/jugadores">Ver jugadores</a></p>'
-    )
+    return redirect(url_for("jugadores"))
+
+
+def agrupar_jugadores(lista_jugadores):
+    # Aceptamos también los nombres de posiciones usados en el diseño de Stitch.
+    grupos = [
+        {"clave": "porteros", "titulo": "Porteros", "posiciones": {"portero", "arquero"}, "jugadores": []},
+        {"clave": "defensas", "titulo": "Defensas", "posiciones": {"defensa", "defensor"}, "jugadores": []},
+        {"clave": "centrocampistas", "titulo": "Centrocampistas", "posiciones": {"centrocampista", "mediocampista"}, "jugadores": []},
+        {"clave": "delanteros", "titulo": "Delanteros", "posiciones": {"delantero"}, "jugadores": []},
+        {"clave": "otros", "titulo": "Otras posiciones", "posiciones": set(), "jugadores": []},
+    ]
+    for jugador in lista_jugadores:
+        posicion = jugador["posicion"].strip().casefold()
+        grupo = next((grupo for grupo in grupos if posicion in grupo["posiciones"]), grupos[-1])
+        grupo["jugadores"].append(jugador)
+    return [grupo for grupo in grupos if grupo["jugadores"]]
 
 
 @app.route("/health")
@@ -50,7 +62,7 @@ def jugadores():
     try:
         with get_db_connection() as connection:
             with connection.cursor(row_factory=dict_row) as cursor:
-                cursor.execute("SELECT nombre, posicion FROM jugadores ORDER BY id;")
+                cursor.execute("SELECT nombre, posicion, imagen FROM jugadores ORDER BY id;")
                 lista_jugadores = cursor.fetchall()
     except psycopg.Error:
         return render_template(
@@ -59,7 +71,12 @@ def jugadores():
             error="No se pudo consultar el listado de jugadores. Inténtalo de nuevo más tarde.",
         ), 503
 
-    return render_template("jugadores.html", jugadores=lista_jugadores, error=None)
+    return render_template(
+        "jugadores.html",
+        jugadores=lista_jugadores,
+        grupos=agrupar_jugadores(lista_jugadores),
+        error=None,
+    )
 
 
 if __name__ == "__main__":

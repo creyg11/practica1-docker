@@ -105,7 +105,7 @@ h2 { margin-top: 4px; font-size: 36px; font-weight: 800; line-height: 1.2; lette
 .shirt { width: 144px; height: 144px; fill: #b8b3a9; }
 .shirt text { fill: white; font: bold 24px system-ui, sans-serif; letter-spacing: 2px; }
 .photo-placeholder { margin-top: 12px; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
-.player-photo { width: 100%; height: 100%; object-fit: cover; }
+.player-photo { width: 100%; height: 100%; object-fit: contain; object-position: center bottom; }
 .player-info { border-top: 3px solid var(--red); padding: 20px; background: white; }
 .player-position { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--red); overflow-wrap: anywhere; }
 .player-info h4 { margin-top: 4px; font-size: 20px; font-weight: 800; letter-spacing: -0.025em; line-height: 1.3; overflow-wrap: anywhere; }

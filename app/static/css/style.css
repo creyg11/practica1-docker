@@ -177,3 +177,22 @@ h2 { margin-top: 4px; font-size: 36px; font-weight: 800; line-height: 1.2; lette
     html { scroll-behavior: auto; }
     *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* Estado de servicios: texto y color para distinguir los resultados. */
+.service-status { margin-top: 24px; padding: 18px 20px; border: 1px solid var(--line); border-radius: 4px; background: rgb(255 255 255 / 65%); }
+.status-heading { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; }
+.status-heading h2 { margin: 0; font-size: 15px; letter-spacing: 0; }
+.status-heading > span, .status-updated { color: var(--muted); font-size: 11px; }
+.service-list { display: flex; flex-wrap: wrap; gap: 12px 24px; list-style: none; padding: 0; margin: 14px 0 10px; }
+.service-list li { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13px; }
+.service-list strong { font-size: 12px; font-weight: 600; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: #77736b; flex-shrink: 0; }
+[data-state="connected"] .status-dot { background: #277047; }
+[data-state="connected"] strong { color: #22613e; }
+[data-state="disconnected"] .status-dot { background: var(--red); }
+[data-state="disconnected"] strong { color: var(--red); }
+[data-state="unknown"] .status-dot { background: #99701a; }
+[data-state="unknown"] strong { color: #795810; }
+[data-state="neutral"] strong { color: var(--muted); }
+.status-message { font-size: 12px; color: var(--muted); }
+.status-updated { margin-top: 6px; min-height: 1.5em; }

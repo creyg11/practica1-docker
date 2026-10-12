@@ -36,6 +36,8 @@ INSERT INTO jugadores (nombre, posicion, imagen) VALUES
     ('Lamine Yamal',      'Delantero',       'images/jugadores/lamine-yamal.avif'),
     ('Mikel Oyarzabal',   'Delantero',       'images/jugadores/mikel-oyarzabal.avif'),
     ('Víctor Muñoz',      'Delantero',       'images/jugadores/victor-munoz.avif'),
-    ('Borja Iglesias',    'Delantero',       'images/jugadores/borja-iglesias.avif');
+    ('Borja Iglesias',    'Delantero',       'images/jugadores/borja-iglesias.avif')
+-- Si ya existe el nombre, conservamos la fila y sus posibles cambios manuales.
+ON CONFLICT (nombre) DO NOTHING;
 
 COMMIT;

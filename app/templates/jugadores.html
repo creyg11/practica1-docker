@@ -12,6 +12,7 @@
     <title>Selección Española · Mundial 2026</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="{{ url_for('static', filename='js/jugadores.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/estado.js') }}" defer></script>
 </head>
 <body>
     <a class="skip-link" href="#jugadores-seccion">Saltar al listado de jugadores</a>
@@ -29,6 +30,21 @@
     </header>
 
     <main class="page-width" id="inicio">
+        <section class="service-status" aria-labelledby="services-title" data-health-url="{{ url_for('health') }}">
+            <div class="status-heading">
+                <h2 id="services-title">Estado de los servicios</h2>
+                <span>Desarrollo · Comprobación cada 5 s</span>
+            </div>
+            <div aria-live="polite" aria-atomic="true">
+                <ul class="service-list">
+                    <li data-service="web" data-state="unknown"><span class="status-dot" aria-hidden="true"></span>Web <strong>Sin comprobar</strong></li>
+                    <li data-service="db" data-state="unknown"><span class="status-dot" aria-hidden="true"></span>PostgreSQL <strong>Sin comprobar</strong></li>
+                    <li data-service="cache" data-state="neutral"><span class="status-dot" aria-hidden="true"></span>Redis <strong>No aplica en desarrollo</strong></li>
+                </ul>
+                <p class="status-message" id="status-message">Activa JavaScript para comprobar las conexiones automáticamente.</p>
+            </div>
+            <p class="status-updated" id="status-updated"></p>
+        </section>
         <section class="hero" aria-labelledby="page-title">
             <div class="hero-copy">
                 <p class="eyebrow"><span class="flag" aria-hidden="true"></span>SELECCIÓN ESPAÑOLA · HISTÓRICO MUNDIALES</p>

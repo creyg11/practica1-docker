@@ -41,20 +41,38 @@ def agrupar_jugadores(lista_jugadores):
 
 @app.route("/health")
 def health():
-    return jsonify({"status": "healthy", "service": "web"}), 200
+    db_connected = comprobar_db()
+    response = jsonify({
+        "status": "healthy" if db_connected else "degraded",
+        "service": "web",
+        "services": {
+            "web": "connected",
+            "db": "connected" if db_connected else "disconnected",
+            "cache": "not_applicable",
+        },
+    })
+    response.headers["Cache-Control"] = "no-store"
+    return response, 200 if db_connected else 503
+
+
+def comprobar_db():
+    """Comprueba una consulta real, sin leer ni modificar los jugadores."""
+    try:
+        with get_db_connection() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute("SET LOCAL statement_timeout = '3s';")
+                cursor.execute("SELECT 1;")
+                return cursor.fetchone()[0] == 1
+    except psycopg.Error:
+        return False
 
 
 @app.route("/db-check")
 def db_check():
-    try:
-        with get_db_connection() as connection:
-            with connection.cursor() as cursor:
-                cursor.execute("SELECT 1;")
-                result = cursor.fetchone()[0]
-    except psycopg.Error:
+    if not comprobar_db():
         return jsonify({"status": "disconnected", "service": "db"}), 503
 
-    return jsonify({"status": "connected", "service": "db", "result": result}), 200
+    return jsonify({"status": "connected", "service": "db", "result": 1}), 200
 
 
 @app.route("/jugadores")

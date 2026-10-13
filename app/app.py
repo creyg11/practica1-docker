@@ -74,14 +74,6 @@ def comprobar_db():
         return False
 
 
-@app.route("/db-check")
-def db_check():
-    if not comprobar_db():
-        return jsonify({"status": "disconnected", "service": "db"}), 503
-
-    return jsonify({"status": "connected", "service": "db", "result": 1}), 200
-
-
 @app.route("/jugadores")
 def jugadores():
     try:

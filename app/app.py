@@ -5,6 +5,12 @@ from psycopg.rows import dict_row
 from flask import Flask, jsonify, redirect, render_template, url_for
 
 app = Flask(__name__)
+app.config["APP_ENV"] = os.environ.get("APP_ENV", "development")
+
+
+@app.context_processor
+def contexto_entorno():
+    return {"is_production": app.config["APP_ENV"] == "production"}
 
 
 def get_db_connection():
@@ -48,7 +54,8 @@ def health():
         "services": {
             "web": "connected",
             "db": "connected" if db_connected else "disconnected",
-            "cache": "not_applicable",
+            # Redis está arrancado en producción; su integración llega después.
+            "cache": "not_integrated" if app.config["APP_ENV"] == "production" else "not_applicable",
         },
     })
     response.headers["Cache-Control"] = "no-store"

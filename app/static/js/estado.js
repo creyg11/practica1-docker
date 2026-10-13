@@ -31,13 +31,15 @@ if (statusPanel) {
             const data = await response.json();
             if (data.services?.web !== 'connected' ||
                 !['connected', 'disconnected'].includes(data.services.db) ||
-                data.services.cache !== 'not_applicable') {
+                !['not_applicable', 'not_integrated'].includes(data.services.cache)) {
                 throw new Error('Respuesta de estado no reconocida');
             }
             const dbConnected = data.services.db === 'connected';
             setService('web', 'connected', 'Disponible');
             setService('db', dbConnected ? 'connected' : 'disconnected',
                 dbConnected ? 'Conectado' : 'Sin conexión');
+            setService('cache', 'neutral', data.services.cache === 'not_integrated'
+                ? 'Pendiente de integrar' : 'No aplica en desarrollo');
             setMessage(dbConnected
                 ? 'Servicios disponibles. Recarga la página para actualizar el listado.'
                 : 'La web responde, pero no puede consultar la base. Los jugadores ya cargados pueden seguir visibles.');

@@ -33,13 +33,13 @@
         <section class="service-status" aria-labelledby="services-title" data-health-url="{{ url_for('health') }}">
             <div class="status-heading">
                 <h2 id="services-title">Estado de los servicios</h2>
-                <span>Desarrollo · Comprobación cada 5 s</span>
+                <span>{{ 'Producción' if is_production else 'Desarrollo' }} · Comprobación cada 5 s</span>
             </div>
             <div aria-live="polite" aria-atomic="true">
                 <ul class="service-list">
                     <li data-service="web" data-state="unknown"><span class="status-dot" aria-hidden="true"></span>Web <strong>Sin comprobar</strong></li>
                     <li data-service="db" data-state="unknown"><span class="status-dot" aria-hidden="true"></span>PostgreSQL <strong>Sin comprobar</strong></li>
-                    <li data-service="cache" data-state="neutral"><span class="status-dot" aria-hidden="true"></span>Redis <strong>No aplica en desarrollo</strong></li>
+                    <li data-service="cache" data-state="neutral"><span class="status-dot" aria-hidden="true"></span>Redis <strong>{{ 'Pendiente de integrar' if is_production else 'No aplica en desarrollo' }}</strong></li>
                 </ul>
                 <p class="status-message" id="status-message">Activa JavaScript para comprobar las conexiones automáticamente.</p>
             </div>

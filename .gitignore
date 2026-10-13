@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+!.env.prod.example
 
 # Entornos virtuales y dependencias comunes
 venv/

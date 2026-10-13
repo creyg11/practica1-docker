@@ -12,6 +12,8 @@ services:
       APP_ENV: production
       DB_HOST: db
       DB_PORT: "5432"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}

@@ -48,18 +48,40 @@ def agrupar_jugadores(lista_jugadores):
 @app.route("/health")
 def health():
     db_connected = comprobar_db()
+    cache_status = "not_applicable"
+    if app.config["APP_ENV"] == "production":
+        cache_status = "connected" if comprobar_redis() else "disconnected"
+    healthy = db_connected and cache_status != "disconnected"
     response = jsonify({
-        "status": "healthy" if db_connected else "degraded",
-        "service": "web",
+        "status": "healthy" if healthy else "degraded",
         "services": {
             "web": "connected",
             "db": "connected" if db_connected else "disconnected",
-            # Redis está arrancado en producción; su integración llega después.
-            "cache": "not_integrated" if app.config["APP_ENV"] == "production" else "not_applicable",
+            "cache": cache_status,
         },
     })
     response.headers["Cache-Control"] = "no-store"
-    return response, 200 if db_connected else 503
+    return response, 200 if healthy else 503
+
+
+def comprobar_redis():
+    """Envía PING desde Flask, sin guardar todavía jugadores en caché."""
+    # Solo se necesita esta dependencia al comprobar producción.
+    import redis
+    from redis.backoff import NoBackoff
+    from redis.retry import Retry
+
+    try:
+        with redis.Redis(
+            host=os.environ["REDIS_HOST"],
+            port=int(os.environ["REDIS_PORT"]),
+            socket_connect_timeout=1,
+            socket_timeout=1,
+            retry=Retry(NoBackoff(), 0),
+        ) as connection:
+            return connection.ping()
+    except redis.RedisError:
+        return False
 
 
 def comprobar_db():

@@ -1,3 +1,4 @@
+import json
 import os
 
 import psycopg
@@ -6,6 +7,8 @@ from flask import Flask, jsonify, redirect, render_template, url_for
 
 app = Flask(__name__)
 app.config["APP_ENV"] = os.environ.get("APP_ENV", "development")
+CACHE_KEY = "jugadores:v1"
+CACHE_TTL = 30  # Segundos desde que guardamos la copia; leerla no renueva el plazo.
 
 
 @app.context_processor
@@ -64,21 +67,28 @@ def health():
     return response, 200 if healthy else 503
 
 
-def comprobar_redis():
-    """Envía PING desde Flask, sin guardar todavía jugadores en caché."""
-    # Solo se necesita esta dependencia al comprobar producción.
+def get_redis_connection():
+    """Prepara el cliente que usamos solo en producción."""
     import redis
     from redis.backoff import NoBackoff
     from redis.retry import Retry
 
+    return redis.Redis(
+        host=os.environ["REDIS_HOST"],
+        port=int(os.environ["REDIS_PORT"]),
+        socket_connect_timeout=1,
+        socket_timeout=1,
+        retry=Retry(NoBackoff(), 0),
+        decode_responses=True,
+    )
+
+
+def comprobar_redis():
+    """Comprueba la conexión sin leer ni renovar la caché de jugadores."""
+    import redis
+
     try:
-        with redis.Redis(
-            host=os.environ["REDIS_HOST"],
-            port=int(os.environ["REDIS_PORT"]),
-            socket_connect_timeout=1,
-            socket_timeout=1,
-            retry=Retry(NoBackoff(), 0),
-        ) as connection:
+        with get_redis_connection() as connection:
             return connection.ping()
     except redis.RedisError:
         return False
@@ -96,26 +106,76 @@ def comprobar_db():
         return False
 
 
+def consultar_jugadores_db():
+    with get_db_connection() as connection:
+        with connection.cursor(row_factory=dict_row) as cursor:
+            cursor.execute("SELECT nombre, posicion, imagen FROM jugadores ORDER BY id;")
+            return cursor.fetchall()
+
+
+def obtener_jugadores():
+    """Devuelve el listado y una explicación del origen de esta petición."""
+    if app.config["APP_ENV"] != "production":
+        return consultar_jugadores_db(), "PostgreSQL", "Desarrollo: caché desactivada."
+
+    import redis
+
+    cache_disponible = True
+    try:
+        with get_redis_connection() as connection:
+            contenido = connection.get(CACHE_KEY)
+            ttl = connection.ttl(CACHE_KEY)
+        if contenido is not None and ttl >= 0:
+            datos = json.loads(contenido)
+            # Una copia dañada se descarta y se vuelve a consultar PostgreSQL.
+            if isinstance(datos, list) and all(
+                isinstance(jugador, dict)
+                and isinstance(jugador.get("nombre"), str)
+                and isinstance(jugador.get("posicion"), str)
+                and (jugador.get("imagen") is None or isinstance(jugador["imagen"], str))
+                for jugador in datos
+            ):
+                return datos, "Redis", f"A la copia le quedaban {ttl} s al cargar esta página."
+    except (ValueError, UnicodeError):
+        pass
+    except redis.RedisError:
+        cache_disponible = False
+
+    datos = consultar_jugadores_db()
+    if cache_disponible:
+        try:
+            with get_redis_connection() as connection:
+                connection.set(CACHE_KEY, json.dumps(datos), ex=CACHE_TTL)
+            return datos, "PostgreSQL", f"Copia guardada en Redis durante {CACHE_TTL} s."
+        except redis.RedisError:
+            pass
+    return datos, "PostgreSQL", "No se pudo utilizar Redis; consulta directa a la base."
+
+
 @app.route("/jugadores")
 def jugadores():
     try:
-        with get_db_connection() as connection:
-            with connection.cursor(row_factory=dict_row) as cursor:
-                cursor.execute("SELECT nombre, posicion, imagen FROM jugadores ORDER BY id;")
-                lista_jugadores = cursor.fetchall()
+        lista_jugadores, origen, detalle_cache = obtener_jugadores()
     except psycopg.Error:
-        return render_template(
+        response = app.make_response((render_template(
             "jugadores.html",
             jugadores=[],
             error="No se pudo consultar el listado de jugadores. Inténtalo de nuevo más tarde.",
-        ), 503
+        ), 503))
+        response.headers["Cache-Control"] = "no-store"
+        return response
 
-    return render_template(
+    response = app.make_response(render_template(
         "jugadores.html",
         jugadores=lista_jugadores,
         grupos=agrupar_jugadores(lista_jugadores),
         error=None,
-    )
+        origen=origen,
+        detalle_cache=detalle_cache,
+    ))
+    # Cada recarga llega a Flask; la caché del listado se gestiona en Redis.
+    response.headers["Cache-Control"] = "no-store"
+    return response
 
 
 if __name__ == "__main__":

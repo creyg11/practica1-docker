@@ -44,6 +44,13 @@
                 <p class="status-message" id="status-message">Activa JavaScript para comprobar las conexiones automáticamente.</p>
             </div>
             <p class="status-updated" id="status-updated"></p>
+            {% if not error %}
+                <div class="data-source" aria-label="Origen del listado">
+                    <p>Origen del listado en esta carga: <strong>{{ origen }}</strong></p>
+                    <p>{{ detalle_cache }} Recarga para hacer una nueva consulta.</p>
+                    <p>Este aviso describe los jugadores mostrados; los indicadores de conexión se comprueban por separado.</p>
+                </div>
+            {% endif %}
         </section>
         <section class="hero" aria-labelledby="page-title">
             <div class="hero-copy">

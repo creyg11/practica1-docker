@@ -43,9 +43,9 @@ if (statusPanel) {
                 cacheStatus === 'not_applicable' ? 'No aplica en desarrollo'
                     : cacheStatus === 'connected' ? 'Conectado' : 'Sin conexión');
             if (!dbConnected) {
-                setMessage('La web responde, pero no puede consultar la base. Los jugadores ya cargados pueden seguir visibles.');
+                setMessage('PostgreSQL no responde. Una nueva carga solo podrá obtener jugadores si hay una copia válida en Redis.');
             } else if (cacheStatus === 'disconnected') {
-                setMessage('La web y PostgreSQL responden, pero Redis no está disponible. El listado sigue consultándose en PostgreSQL.');
+                setMessage('Redis no responde. Las nuevas cargas consultarán PostgreSQL directamente.');
             } else {
                 setMessage('Servicios disponibles. Recarga la página para actualizar el listado.');
             }

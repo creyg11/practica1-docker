@@ -196,3 +196,6 @@ h2 { margin-top: 4px; font-size: 36px; font-weight: 800; line-height: 1.2; lette
 [data-state="neutral"] strong { color: var(--muted); }
 .status-message { font-size: 12px; color: var(--muted); }
 .status-updated { margin-top: 6px; min-height: 1.5em; }
+.data-source { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+.data-source p { margin: 4px 0; font-size: 12px; }
+.data-source p:last-child { color: var(--muted); }

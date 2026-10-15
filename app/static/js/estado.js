@@ -43,7 +43,9 @@ if (statusPanel) {
                 cacheStatus === 'not_applicable' ? 'No aplica en desarrollo'
                     : cacheStatus === 'connected' ? 'Conectado' : 'Sin conexión');
             if (!dbConnected) {
-                setMessage('PostgreSQL no responde. Una nueva carga solo podrá obtener jugadores si hay una copia válida en Redis.');
+                setMessage(cacheStatus === 'not_applicable'
+                    ? 'PostgreSQL no responde. En desarrollo no hay caché: una nueva carga no podrá obtener jugadores.'
+                    : 'PostgreSQL no responde. Una nueva carga solo podrá obtener jugadores si hay una copia válida en Redis.');
             } else if (cacheStatus === 'disconnected') {
                 setMessage('Redis no responde. Las nuevas cargas consultarán PostgreSQL directamente.');
             } else {

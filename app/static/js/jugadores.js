@@ -1,4 +1,4 @@
-// Los filtros trabajan sobre el listado que Flask ya ha cargado desde PostgreSQL.
+// Los filtros trabajan sobre el listado que Flask ya ha enviado en el HTML.
 const filters = document.querySelector('.filters');
 const filterButtons = document.querySelectorAll('[data-filter]');
 const groups = document.querySelectorAll('[data-group]');

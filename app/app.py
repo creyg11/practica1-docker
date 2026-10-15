@@ -26,6 +26,21 @@ def get_db_connection():
         connect_timeout=3,
     )
 
+def get_redis_connection():
+    """Prepara el cliente que usamos solo en producción."""
+    import redis
+    from redis.backoff import NoBackoff
+    from redis.retry import Retry
+
+    return redis.Redis(
+        host=os.environ["REDIS_HOST"],
+        port=int(os.environ["REDIS_PORT"]),
+        socket_connect_timeout=1,
+        socket_timeout=1,
+        retry=Retry(NoBackoff(), 0),
+        decode_responses=True,
+    )
+
 
 @app.route("/")
 def home():
@@ -66,21 +81,6 @@ def health():
     response.headers["Cache-Control"] = "no-store"
     return response, 200 if healthy else 503
 
-
-def get_redis_connection():
-    """Prepara el cliente que usamos solo en producción."""
-    import redis
-    from redis.backoff import NoBackoff
-    from redis.retry import Retry
-
-    return redis.Redis(
-        host=os.environ["REDIS_HOST"],
-        port=int(os.environ["REDIS_PORT"]),
-        socket_connect_timeout=1,
-        socket_timeout=1,
-        retry=Retry(NoBackoff(), 0),
-        decode_responses=True,
-    )
 
 
 def comprobar_redis():
@@ -136,7 +136,7 @@ def obtener_jugadores():
                 for jugador in datos
             ):
                 return datos, "Redis", f"A la copia le quedaban {ttl} s al cargar esta página."
-    except (ValueError, UnicodeError):
+    except ValueError:
         pass
     except redis.RedisError:
         cache_disponible = False

@@ -54,6 +54,7 @@ def agrupar_jugadores(lista_jugadores):
         {"clave": "defensas", "titulo": "Defensas", "posiciones": {"defensa", "defensor"}, "jugadores": []},
         {"clave": "centrocampistas", "titulo": "Centrocampistas", "posiciones": {"centrocampista", "mediocampista"}, "jugadores": []},
         {"clave": "delanteros", "titulo": "Delanteros", "posiciones": {"delantero"}, "jugadores": []},
+        {"clave": "tecnicos", "titulo": "Cuerpo técnico", "posiciones": {"entrenador"}, "jugadores": []},
         {"clave": "otros", "titulo": "Otras posiciones", "posiciones": set(), "jugadores": []},
     ]
     for jugador in lista_jugadores:
@@ -126,7 +127,7 @@ def obtener_jugadores():
             contenido = connection.get(CACHE_KEY)
             ttl = connection.ttl(CACHE_KEY)
         if contenido is not None and ttl >= 0:
-            datos = json.loads(contenido)
+            datos = json.loads(contenido) # Convierte el texto JSON almacenado en Redis en objetos Python
             # Una copia dañada se descarta y se vuelve a consultar PostgreSQL.
             if isinstance(datos, list) and all(
                 isinstance(jugador, dict)

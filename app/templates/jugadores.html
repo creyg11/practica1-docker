@@ -71,10 +71,10 @@
             <div class="section-heading">
                 <div>
                     <p class="eyebrow">LOS PROTAGONISTAS</p>
-                    <h2 id="squad-title">Nuestros jugadores</h2>
+                    <h2 id="squad-title">Nuestro equipo</h2>
                 </div>
                 {% if jugadores and not error %}
-                    <div class="filters" role="group" aria-label="Filtrar jugadores por posición" hidden>
+                    <div class="filters" role="group" aria-label="Filtrar el equipo por función" hidden>
                         <button class="filter-button" type="button" data-filter="all" aria-pressed="true" aria-controls="grid-jugadores">Todos ({{ jugadores|length }})</button>
                         {% for grupo in grupos %}
                             <button class="filter-button" type="button" data-filter="{{ grupo.clave }}" aria-pressed="false" aria-controls="grid-jugadores">{{ grupo.titulo }} ({{ grupo.jugadores|length }})</button>
@@ -96,7 +96,11 @@
                         <section class="position-group" data-group="{{ grupo.clave }}" aria-labelledby="heading-{{ grupo.clave }}">
                             <div class="group-heading">
                                 <h3 id="heading-{{ grupo.clave }}">{{ grupo.titulo }}</h3>
-                                <span>{{ grupo.jugadores|length }} {{ 'jugador' if grupo.jugadores|length == 1 else 'jugadores' }}</span>
+                                {% if grupo.clave == 'tecnicos' %}
+                                    <span>{{ grupo.jugadores|length }} {{ 'entrenador' if grupo.jugadores|length == 1 else 'entrenadores' }}</span>
+                                {% else %}
+                                    <span>{{ grupo.jugadores|length }} {{ 'jugador' if grupo.jugadores|length == 1 else 'jugadores' }}</span>
+                                {% endif %}
                             </div>
                             <ul class="player-grid">
                                 {% for jugador in grupo.jugadores %}
@@ -145,7 +149,7 @@
             </div>
             <section class="detail-stats" aria-labelledby="stats-title">
                 <h3 id="stats-title">Estadísticas con la selección</h3>
-                <p>Todavía no hay estadísticas disponibles para este jugador.</p>
+                <p>Todavía no hay estadísticas disponibles para esta ficha.</p>
             </section>
             <footer class="detail-footer">
                 <span>Plantilla Mundial 2026</span>

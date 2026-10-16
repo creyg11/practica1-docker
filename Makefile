@@ -13,7 +13,7 @@ ENV_EXAMPLE = $(if $(filter prod,$(ENV)),.env.prod.example,.env.example)
 CACHE_KEY = jugadores:v1
 SERVICE ?=
 
-.PHONY: help init check-env check-prod validate dev prod up build stop down ps logs \
+.PHONY: help init check-env check-prod validate dev prod up build stop down clean clean-all ps logs \
         web-rebuild db players db-stop db-start db-remove db-recreate health \
         images networks volumes security redis redis-ping redis-stop redis-start \
         cache-show cache-ttl cache-clear coach-add coach-remove demo
@@ -57,6 +57,12 @@ stop: check-env ## Detener los servicios, conservando contenedores, red y volume
 
 down: check-env ## Eliminar contenedores y red; conservar los datos de PostgreSQL.
 	$(COMPOSE) down
+
+clean: check-env ## Eliminar contenedores, red e imagen propia de web; conservar el volumen.
+	$(COMPOSE) down --rmi local
+
+clean-all: ## BORRAR ambos entornos, sus datos e imágenes, incluidas PostgreSQL, Redis y Python.
+	sh scripts/clean-project.sh
 
 ps: check-env ## Ver contenedores, incluidos los detenidos, y su estado.
 	$(COMPOSE) ps -a
@@ -152,4 +158,5 @@ demo: ## Mostrar el orden de la demostración; no ejecuta cambios.
 	  '8. Esperar a que caduque y recargar: PostgreSQL (si nadie regeneró la copia).' \
 	  '9. make redis-stop ENV=prod; recargar: PostgreSQL; después make redis-start ENV=prod.' \
 	  '10. make db-stop ENV=dev; comprobar el panel; recuperar con make db-start ENV=dev.' \
-	  '11. make down ENV=dev / make down ENV=prod: terminar conservando los datos.'
+	  '11. make down ENV=dev / make down ENV=prod: terminar conservando los datos.' \
+	  '12. make clean-all; BORRA ambos entornos, sus datos y sus imágenes, incluidas PostgreSQL, Redis y Python.'

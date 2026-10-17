@@ -11,6 +11,8 @@ producción (`prod`). La práctica se centra en la orquestación de los servicio
 la configuración de cada entorno, la persistencia de los datos, la comunicación
 mediante redes internas y la seguridad básica dentro del ecosistema Docker.
 
+La idea de la web es permitir explorar las plantillas de la selección española de fútbol en distintos mundiales, consultar los convocados de cada edición, ver sus fichas y filtrarlos por posición. En esta práctica se ha implementado la plantilla del Mundial de 2026 como punto de partida. Además, la web muestra el estado de conexión de los servicios y el origen del listado —PostgreSQL o Redis— para visualizar el funcionamiento de la base de datos y la caché. La temática deportiva sirve como ejemplo práctico para demostrar la comunicación entre los contenedores y el comportamiento de la aplicación ante fallos.
+
 Este README es la guía de instalación y demostración.
 
 - [1. Instalación y ejecución](#1-guía-de-instalación-y-ejecución-paso-a-paso)
